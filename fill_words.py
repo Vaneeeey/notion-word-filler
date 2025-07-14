@@ -45,7 +45,7 @@ def enrich_word(word: str) -> tuple[str, str, str]:
         f'"antonyms": ["ant1", "ant2", "ant3"]}}'
     )
     resp = client.chat.completions.create(
-        model="Qwen/Qwen2.5-7B-Instruct",
+        model="Qwen/Qwen2.5-32B-Instruct",
         messages=[{"role": "user", "content": prompt}],
         timeout=30
     ).choices[0].message.content.strip()
