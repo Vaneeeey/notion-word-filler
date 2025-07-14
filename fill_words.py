@@ -24,7 +24,7 @@ NOTION_HDRS = {
 }
 
 # ---------- 1) 取 Definition 为空的行 ----------
-def fetch_blank_rows(limit=1):
+def fetch_blank_rows(limit=100):
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
     payload = {
         "filter": {"property": "Definition", "rich_text": {"is_empty": True}},
@@ -77,7 +77,7 @@ def write_back(page_id: str, definition: str, synonyms: str, antonyms: str):
 
 # ---------- 主流程：只处理 1 行，便于测试 ----------
 if __name__ == "__main__":
-    pages = fetch_blank_rows()
+    pages = fetch_blank_rows(limit=100)
     if not pages:
         print(">>> 数据库暂时没有空 Definition 的单词。")
     else:
