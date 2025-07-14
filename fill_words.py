@@ -24,7 +24,7 @@ NOTION_HDRS = {
 }
 
 # ---------- 1) 取 Definition 为空的行 ----------
-def fetch_blank_rows(limit=100):
+def fetch_blank_rows(limit=1):
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
     payload = {
         "filter": {"property": "Definition", "rich_text": {"is_empty": True}},
@@ -81,13 +81,10 @@ if __name__ == "__main__":
     if not pages:
         print(">>> 数据库暂时没有空 Definition 的单词。")
     else:
-        page = pages[0]
+    for page in pages:
         word = page["properties"]["Name"]["title"][0]["plain_text"]
         print(f"[*] 正在处理：{word}")
         definition, synonyms, antonyms = enrich_word(word)
-        print("    · 中文释义：", definition)
-        print("    · 同义词：", synonyms)
-        print("    · 反义词：", antonyms)
         write_back(page["id"], definition, synonyms, antonyms)
-        print(">>> 已写回 Notion！")
-        time.sleep(1.2)   # 避免速率限制
+        time.sleep(1.2)          # 避免速率限制
+    print(">>> 本轮已写回", len(pages), "条记录！")
