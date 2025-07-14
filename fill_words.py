@@ -75,16 +75,21 @@ def write_back(page_id: str, definition: str, synonyms: str, antonyms: str):
     res = requests.patch(url, json=payload, headers=NOTION_HDRS, timeout=30)
     res.raise_for_status()
 
-# ---------- 主流程：只处理 1 行，便于测试 ----------
-if __name__ == "__main__":
-    pages = fetch_blank_rows(limit=500)
+# -------- 主流程：循环分页直到没有空行 --------
+while True:
+    pages = fetch_blank_rows(limit=100)      # Notion 单页上限
     if not pages:
-        print(">>> 数据库暂时没有空 Definition 的单词。")
-    else:
-        for page in pages:
+        print(">>> 所有空 Definition 条目已填完！")
+        break
+
+    print(f">>> 本批次获取 {len(pages)} 条，需要处理...")
+    for page in pages:
+        try:
             word = page["properties"]["Name"]["title"][0]["plain_text"]
             print(f"[*] 正在处理：{word}")
             definition, synonyms, antonyms = enrich_word(word)
             write_back(page["id"], definition, synonyms, antonyms)
-            time.sleep(1.2)          # 避免速率限制
-        print(">>> 本轮已写回", len(pages), "条记录！")
+            time.sleep(1.2)                  # 避免速率限制
+        except Exception as e:
+            print(f"[WARN] 处理 {word} 时出错：{e} —— 跳过")
+    # 循环下一批
